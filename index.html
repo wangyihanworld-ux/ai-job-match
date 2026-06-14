@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 求职智能匹配与简历优化助手</title>
+  <meta name="theme-color" content="#0f172a">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/tdesign-vue-next/dist/tdesign.min.css">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-cyan: #06b6d4;
+      --border-color: #334155;
+      --border-light: rgba(255,255,255,0.08);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
+      --shadow-glow-blue: 0 0 20px rgba(59,130,246,0.15);
+      --shadow-glow-purple: 0 0 20px rgba(139,92,246,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      color-scheme: dark;
+      scroll-behavior: smooth;
+      scroll-margin-top: 80px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Navigation ── */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(15,23,42,0.85);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.3px;
+    }
+    .nav-brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.06);
+    }
+    .nav-cta {
+      padding: 8px 20px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-glow-blue);
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(59,130,246,0.25);
+    }
+
+    /* ── Layout ── */
+    .main-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Hero ── */
+    .hero-section {
+      text-align: center;
+      padding: 64px 24px 48px;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.2);
+      font-size: 13px;
+      color: var(--accent-purple);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.5); }
+    }
+    .hero-title {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero-gradient {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(180deg, #fff, var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Section ── */
+    .section {
+      padding: 48px 0;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .section-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .step-blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+    .step-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+    .step-green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+    .step-orange { background: rgba(245,158,11,0.15); color: var(--accent-orange); }
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: all 0.25s ease;
+    }
+    .card:hover {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: var(--shadow-lg);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* ── Grid ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      .hero-stats { gap: 24px; }
+      .hero-stat-value { font-size: 28px; }
+    }
+
+    /* ── Form ── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    .form-label .required {
+      color: var(--accent-red);
+      margin-left: 2px;
+    }
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: #fff;
+      box-shadow: var(--shadow-glow-blue);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(59,130,246,0.3);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .btn-full {
+      width: 100%;
+    }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .tag-blue { background: rgba(59,130,246,0.1); color: var(--accent-blue); }
+    .tag-purple { background: rgba(139,92,246,0.1); color: var(--accent-purple); }
+    .tag-green { background: rgba(16,185,129,0.1); color: var(--accent-green); }
+    .tag-orange { background: rgba(245,158,11,0.1); color: var(--accent-orange); }
+    .tag-cyan { background: rgba(6,182,212,0.1); color: var(--accent-cyan); }
+    .tag-red { background: rgba(239,68,68,0.1); color: var(--accent-red); }
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ── Job Card ── */
+    .job-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .job-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .job-card.match-high::before {
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+    }
+    .job-card.match-medium::before {
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+    }
+    .job-card.match-good::before {
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-pink, #ec4899));
+    }
+    .job-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(255,255,255,0.12);
+    }
+    .job-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .job-card-company {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .job-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .job-card-score {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .score-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      position: relative;
+    }
+    .score-circle::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      padding: 3px;
+      background: conic-gradient(var(--accent-green) calc(var(--score) * 1%), transparent 0);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+    }
+    .score-high { color: var(--accent-green); }
+    .score-good { color: var(--accent-cyan); }
+    .score-medium { color: var(--accent-orange); }
+    .job-card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+    .match-reason {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      margin-top: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      line-height: 1.5;
+    }
+    .match-reason i {
+      color: var(--accent-cyan);
+      font-style: normal;
+      flex-shrink: 0;
+    }
+
+    /* ── Diagnosis Panel ── */
+    .diagnosis-block {
+      margin-bottom: 24px;
+    }
+    .diagnosis-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .diagnosis-label .icon {
+      font-size: 16px;
+    }
+    .compare-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    @media (max-width: 640px) {
+      .compare-box { grid-template-columns: 1fr; }
+    }
+    .compare-col {
+      padding: 18px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .compare-before {
+      background: rgba(239,68,68,0.05);
+    }
+    .compare-after {
+      background: rgba(16,185,129,0.05);
+    }
+    .compare-col-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .compare-col-title.before { color: var(--accent-red); }
+    .compare-col-title.after { color: var(--accent-green); }
+    .highlight-add { background: rgba(16,185,129,0.15); padding: 2px 4px; border-radius: 3px; }
+    .highlight-remove { background: rgba(239,68,68,0.15); padding: 2px 4px; border-radius: 3px; text-decoration: line-through; }
+
+    /* ── Radar Chart ── */
+    .radar-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+    }
+    .radar-chart {
+      width: 320px;
+      height: 320px;
+      position: relative;
+    }
+
+    /* ── Gap Analysis ── */
+    .gap-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+    }
+    .gap-item-info {
+      flex: 1;
+    }
+    .gap-item-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .gap-item-status {
+      font-size: 12px;
+    }
+    .gap-status-match { color: var(--accent-green); }
+    .gap-status-miss { color: var(--accent-red); }
+    .gap-status-partial { color: var(--accent-orange); }
+
+    /* ── Progress Bar ── */
+    .skill-progress {
+      margin-bottom: 12px;
+    }
+    .skill-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .skill-progress-bar {
+      height: 6px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .skill-progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .fill-blue { background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan)); }
+    .fill-purple { background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink, #ec4899)); }
+    .fill-green { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+    .fill-orange { background: linear-gradient(90deg, var(--accent-orange), var(--accent-red)); }
+
+    /* ── Deliverables ── */
+    .deliverable-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .deliverable-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: var(--shadow-lg);
+    }
+    .deliverable-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+    .icon-html { background: rgba(239,68,68,0.1); color: #ef4444; }
+    .icon-doc { background: rgba(59,130,246,0.1); color: var(--accent-blue); }
+    .deliverable-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .deliverable-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* ── Dividers ── */
+    .divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 32px 0;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-green);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 1000;
+      box-shadow: var(--shadow-lg);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    }
+
+    /* ── Loading animation ── */
+    .loading-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: dotBounce 1.4s infinite ease-in-out both;
+    }
+    .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Filter row ── */
+    .filter-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .filter-chip.active, .filter-chip:hover {
+      border-color: var(--accent-blue);
+      background: rgba(59,130,246,0.1);
+      color: var(--accent-blue);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 48px 24px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 48px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 100px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- ════ Navigation ════ -->
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">🎯</div>
+      <span>JobMatch AI</span>
+    </div>
+    <div class="nav-links">
+      <a href="#step1" class="nav-link active">背景解析</a>
+      <a href="#step2" class="nav-link">岗位匹配</a>
+      <a href="#step3" class="nav-link">简历诊断</a>
+      <a href="#step4" class="nav-link">交付物</a>
+      <a href="#step3" class="nav-cta">开始诊断 →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ════ Hero ════ -->
+<section class="hero-section">
+  <div class="hero-badge">
+    <span class="dot"></span> AI 驱动的智能求职助手
+  </div>
+  <h1 class="hero-title">
+    你的专属<br><span class="hero-gradient">求职智能匹配与简历优化专家</span>
+  </h1>
+  <p class="hero-subtitle">
+    无论你是深耕单一领域的专家，还是拥有「技术+商科」跨界背景的复合型人才，我都能帮你精准定位高匹配岗位，用 HRD 视角重塑简历，提升初筛命中率。
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">92%</div>
+      <div class="hero-stat-label">岗位匹配精度</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">3.5x</div>
+      <div class="hero-stat-label">初筛通过率提升</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">500+</div>
+      <div class="hero-stat-label">合作雇主企业</div>
+    </div>
+  </div>
+</section>
+
+<div class="main-container">
+
+<!-- ════ Step 1: 个人背景与意向解析 ════ -->
+<section id="step1" class="section">
+  <div class="section-header">
+    <div class="section-step step-blue">1</div>
+    <div>
+      <h2 class="section-title">个人背景与意向解析</h2>
+      <p class="section-subtitle">告诉我你的技能和求职意向，我将从中提取你的核心竞争力</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Input Panel -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">📋 填写你的信息</h3>
+        <span class="tag tag-purple">Step 1/4</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">当前简历 / 核心技能描述 <span class="required">*</span></label>
+        <textarea id="skillInput" class="form-textarea" placeholder="请详细描述你的技能、实习/项目经历。例如：
+
+• 精通 React / Vue / Three.js 前端开发
+• 具备 US GAAP / IFRS 16 会计准则经验
+• 曾负责跨国税务统筹项目
+• 熟悉 Python 数据分析与可视化
+• ..."></textarea>
+        <p class="form-hint">越详细，AI 匹配越精准。请务必包含量化数据。</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">目标城市</label>
+          <select id="cityInput" class="form-select">
+            <option value="">请选择城市</option>
+            <option value="beijing">北京</option>
+            <option value="shanghai">上海</option>
+            <option value="shenzhen">深圳</option>
+            <option value="guangzhou">广州</option>
+            <option value="hangzhou">杭州</option>
+            <option value="hongkong" selected>中国香港</option>
+            <option value="singapore">新加坡</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">期望行业</label>
+          <select id="industryInput" class="form-select">
+            <option value="">请选择行业</option>
+            <option value="tech">科技 / 互联网</option>
+            <option value="finance" selected>金融 / 金融科技</option>
+            <option value="consulting">咨询 / 专业服务</option>
+            <option value="manufacturing">制造业</option>
+            <option value="consumer">消费品 / 零售</option>
+            <option value="healthcare">医疗健康</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">期望岗位类型</label>
+          <select id="roleInput" class="form-select">
+            <option value="">请选择岗位</option>
+            <option value="frontend">前端开发工程师</option>
+            <option value="fullstack">全栈开发工程师</option>
+            <option value="data">数据分析师</option>
+            <option value="product">产品经理</option>
+            <option value="finance-role" selected>财务分析 / 税务</option>
+            <option value="consultant">技术顾问</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="btnAnalyze" class="btn btn-primary btn-full" onclick="analyzeProfile()">
+        🔍 开始智能解析
+      </button>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="card" id="profileResult">
+      <div class="card-header">
+        <h3 class="card-title">🧠 能力提取结果</h3>
+      </div>
+      <div id="profileResultContent" class="empty-state" style="text-align:center;padding:48px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">📊</div>
+        <p style="color:var(--text-muted);font-size:14px;">填写左侧信息后点击「开始智能解析」<br>我将自动提取你的核心竞争力</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ Step 2: 智能岗位匹配 ════ -->
+<section id="step2" class="section">
+  <div class="section-header">
+    <div class="section-step step-purple">2</div>
+    <div>
+      <h2 class="section-title">智能岗位匹配雷达</h2>
+      <p class="section-subtitle">基于你的能力画像，反向精准匹配高契合度岗位机会</p>
+    </div>
+  </div>
+
+  <div class="filter-row" id="jobFilters">
+    <button class="filter-chip active" onclick="filterJobs('all', this)">全部岗位</button>
+    <button class="filter-chip" onclick="filterJobs('90+', this)">匹配度 ≥ 90%</button>
+    <button class="filter-chip" onclick="filterJobs('80-89', this)">匹配度 80-89%</button>
+    <button class="filter-chip" onclick="filterJobs('70-79', this)">匹配度 70-79%</button>
+  </div>
+
+  <div class="grid-3" id="jobCards">
+    <div class="job-card match-high" style="grid-column:1/-1;text-align:center;padding:48px;">
+      <div style="font-size:48px;margin-bottom:16px;">🎯</div>
+      <p style="color:var(--text-muted);font-size:14px;">请先在 Step 1 完成背景解析<br>岗位匹配结果将自动展示在这里</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ Step 3: 简历精准诊断与 STAR 重塑 ════ -->
+<section id="step3" class="section">
+  <div class="section-header">
+    <div class="section-step step-green">3</div>
+    <div>
+      <h2 class="section-title">简历精准诊断与 STAR 重塑</h2>
+      <p class="section-subtitle">输入目标岗位 JD，获得向量级对比分析及 STAR 法则优化建议</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- JD Input -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">📝 目标岗位 JD</h3>
+      </div>
+      <div class="form-group">
+        <label class="form-label">请粘贴目标岗位的职位描述 <span class="required">*</span></label>
+        <textarea id="jdInput" class="form-textarea" placeholder="请粘贴目标岗位 JD，例如：
+
+公司：某头部金融科技集团
+职位：高级财务分析经理（跨境业务）
+要求：
+1. 8年以上跨国公司财务分析经验
+2. 精通 US GAAP / IFRS 准则
+3. 具备跨境税务筹划能力
+..."></textarea>
+      </div>
+      <button id="btnDiagnose" class="btn btn-primary btn-full" onclick="runDiagnosis()">
+        🔬 开始智能诊断
+      </button>
+    </div>
+
+    <!-- Gap Analysis -->
+    <div class="card" id="gapAnalysis">
+      <div class="card-header">
+        <h3 class="card-title">📊 匹配度诊断结果</h3>
+      </div>
+      <div id="gapContent" style="text-align:center;padding:48px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">🔬</div>
+        <p style="color:var(--text-muted);font-size:14px;">输入 JD 后点击「开始智能诊断」<br>将显示向量级 Gap 分析结果</p>
+      </div>
+    </div>
+
+    <!-- STAR Before/After -->
+    <div class="card" style="grid-column:1/-1;" id="starSection">
+      <div class="card-header">
+        <h3 class="card-title">⭐ STAR 法则重塑对比</h3>
+        <span class="tag tag-green">Before & After</span>
+      </div>
+      <div id="starContent" style="text-align:center;padding:48px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">✏️</div>
+        <p style="color:var(--text-muted);font-size:14px;">完成诊断后，STAR 重塑建议将展示在这里</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ Step 4: 交付物生成 ════ -->
+<section id="step4" class="section">
+  <div class="section-header">
+    <div class="section-step step-orange">4</div>
+    <div>
+      <h2 class="section-title">交付物生成</h2>
+      <p class="section-subtitle">一键输出可运行的 HTML Demo 与专业方案说明文档</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="deliverable-card">
+      <div class="deliverable-icon icon-html">📄</div>
+      <div class="deliverable-title">完整 HTML Demo</div>
+      <div class="deliverable-desc">
+        包含 CSS 和 JS 的单文件 HTML 代码，实现「岗位匹配雷达」与「简历诊断对比」的交互式面板。
+      </div>
+      <button class="btn btn-primary btn-full" onclick="exportHTML()">
+        ⬇️ 下载 HTML Demo
+      </button>
+    </div>
+    <div class="deliverable-card">
+      <div class="deliverable-icon icon-doc">📋</div>
+      <div class="deliverable-title">方案说明文档</div>
+      <div class="deliverable-desc">
+        字数控制在 1000 字以内，包含问题诊断、方案设计、AI 工具选型理由、关键配置、迭代记录与效果评估。
+      </div>
+      <button class="btn btn-secondary btn-full" onclick="showReport()">
+        📋 查看方案说明
+      </button>
+    </div>
+  </div>
+</section>
+
+</div><!-- .main-container -->
+
+<!-- ════ Report Modal ════ -->
+<div id="reportModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;" onclick="if(event.target===this) closeReport()">
+  <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-xl);max-width:720px;width:90%;max-height:85vh;overflow-y:auto;padding:32px;overscroll-behavior:contain;" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h2 style="font-size:22px;font-weight:700;">📋 方案说明文档</h2>
+      <button onclick="closeReport()" style="background:none;border:none;color:var(--text-secondary);font-size:24px;cursor:pointer;padding:4px 8px;border-radius:8px;">✕</button>
+    </div>
+    <div id="reportContent"></div>
+  </div>
+</div>
+
+<!-- ════ Footer ════ -->
+<footer class="footer">
+  <p>🎯 AI 求职智能匹配与简历优化助手 &copy; 2026 — 基于真实招聘逻辑构建</p>
+  <p style="margin-top:8px;">本工具为辅助参考，最终简历内容请以个人真实经历为准。</p>
+</footer>
+
+<!-- ════ Toast Container ════ -->
+<div id="toastContainer"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// State Management
+// ═══════════════════════════════════════════
+const state = {
+  userProfile: null,
+  userSkills: [],
+  matchedJobs: [],
+  diagnosisResult: null,
+  activeJobFilter: 'all',
+};
+
+// ═══════════════════════════════════════════
+// Mock Job Database
+// ═══════════════════════════════════════════
+const JOBS_DB = [
+  {
+    id: 1,
+    company: '某头部金融科技集团（港股上市）',
+    title: '高级财务分析经理（跨境业务）',
+    location: '中国香港',
+    score: 94,
+    requirements: 'US GAAP/IFRS 16、跨境税务筹划、财务建模、SQL',
+    matchReasons: ['你精通 US GAAP / IFRS 16 租赁会计准则', '具备跨国税务统筹项目经验', '香港总部与你目标城市吻合'],
+    desc: '负责集团跨境业务财务分析，管理亚太区租赁资产税务合规，年薪 80-120w HKD + 股权激励。',
+  },
+  {
+    id: 2,
+    company: '某国际四大会计师事务所',
+    title: '数字转型技术顾问（财务方向）',
+    location: '中国香港/深圳',
+    score: 88,
+    requirements: 'React/Vue、Python、财务系统实施、SQL、RPA',
+    matchReasons: ['你具备 React / Three.js 前端开发能力', 'Python 数据分析经验匹配系统集成需求', '财务 + 技术的跨界背景是该岗位隐性需求'],
+    desc: '为客户提供财务数字化解决方案，包括 RPA 自动化、BI 看板开发，要求既懂技术又懂财务。',
+  },
+  {
+    id: 3,
+    company: '某全球前 5 资产管理公司',
+    title: 'Portfolio Analyst — Data Visualization',
+    location: '中国香港',
+    score: 82,
+    requirements: 'Python、Tableau、SQL、金融建模、CFA 优先',
+    matchReasons: ['你具备 Python 数据分析经验', '3D 交互可视化能力可用于创新报告展示', '金融行业经验匹配'],
+    desc: '支持投资组合管理团队进行数据分析和可视化报告开发，推动决策支持系统建设。',
+  },
+  {
+    id: 4,
+    company: '某头部互联网大厂（国际化业务）',
+    title: '资深前端开发工程师 — FinTech 方向',
+    location: '深圳/新加坡',
+    score: 79,
+    requirements: 'React、TypeScript、Three.js/WebGL、前端架构',
+    matchReasons: ['Three.js 3D 手势粒子交互系统经验是该岗位差异化优势', 'React 生态技术栈完全匹配', '具备金融行业背景理解'],
+    desc: '负责国际化 FinTech 产品前端架构，推动数据可视化与 3D 交互创新，年薪 60-90w + 期权。',
+  },
+  {
+    id: 5,
+    company: '某全球领先金融数据服务商',
+    title: '税务科技产品经理',
+    location: '中国香港/上海',
+    score: 76,
+    requirements: '跨国税务经验、产品设计、数据分析、SQL',
+    matchReasons: ['跨国税务统筹经验是核心资格', '技术背景有助于与开发团队沟通', '金融科技行业匹配'],
+    desc: '负责税务合规 SaaS 产品规划和迭代，连接税务专家与工程团队，推动产品落地。',
+  },
+  {
+    id: 6,
+    company: '某 AI 驱动的量化对冲基金',
+    title: 'Quantitative Developer',
+    location: '中国香港',
+    score: 72,
+    requirements: 'Python、C++、机器学习、金融数学、实盘经验',
+    matchReasons: ['Python 编程基础匹配量化开发需求', '数据分析思维可迁移至量化领域', '香港城市匹配'],
+    desc: '开发量化交易策略回测框架，优化实盘交易系统性能。需有扎实的编程和数学功底。',
+  },
+];
+
+// ═══════════════════════════════════════════
+// Step 1: Profile Analysis
+// ═══════════════════════════════════════════
+function analyzeProfile() {
+  const skillText = document.getElementById('skillInput').value.trim();
+  const city = document.getElementById('cityInput').value;
+  const industry = document.getElementById('industryInput').value;
+  const role = document.getElementById('roleInput').value;
+
+  if (!skillText) {
+    showToast('请先填写核心技能描述', 'warning');
+    return;
+  }
+
+  // Simulated AI analysis
+  const skills = extractSkills(skillText);
+  const tags = generateSkillTags(skills);
+
+  state.userProfile = { skillText, city, industry, role, skills, tags };
+  state.userSkills = skills;
+
+  // Render profile result
+  document.getElementById('profileResultContent').innerHTML = renderProfileResult(skills, tags, city, industry);
+
+  // Trigger job matching
+  matchJobs(skills, city);
+
+  // Scroll to Step 2
+  document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+
+  showToast('✅ 能力解析完成！已自动触发岗位匹配', 'success');
+}
+
+function extractSkills(text) {
+  const knownSkills = {
+    hard: [],
+    soft: [],
+    experience: [],
+  };
+
+  const patterns = {
+    hard: ['React', 'Vue', 'Angular', 'Three\\.js', 'WebGL', 'TypeScript', 'JavaScript', 'Python', 'Java', 'C\\+\\+', 'Go', 'Rust', 'Node\\.js', 'Next\\.js', 'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'TensorFlow', 'PyTorch', 'RPA', 'Tableau', 'Power BI', 'Excel', 'VBA', 'Git', 'CI/CD', 'HTML', 'CSS', 'Sass', 'Webpack', 'Vite', 'GraphQL', 'REST API', 'US GAAP', 'IFRS', 'IFRS 16', 'SAP', 'Oracle', 'Financial Modeling', 'Bloomberg Terminal', 'Wind', '彭博'],
+    soft: ['团队管理', '项目管理', '跨部门协作', '沟通能力', '领导力', '谈判', '客户关系', '敏捷开发', 'Scrum', '风险控制', '合规', '战略规划'],
+  };
+
+  patterns.hard.forEach(skill => {
+    const regex = new RegExp(skill.replace(/\./g, '\\.'), 'gi');
+    if (regex.test(text)) {
+      const match = text.match(regex)[0];
+      if (!knownSkills.hard.includes(match)) {
+        knownSkills.hard.push(match.replace(/^./, c => c.toUpperCase()));
+      }
+    }
+  });
+
+  patterns.soft.forEach(skill => {
+    if (text.includes(skill) && !knownSkills.soft.includes(skill)) {
+      knownSkills.soft.push(skill);
+    }
+  });
+
+  // Extract experience items (lines with bullet-like markers or key phrases)
+  const expLines = text.split(/[\n•·\-]/).filter(line => {
+    const trimmed = line.trim();
+    return trimmed.length > 15 && (
+      trimmed.includes('经验') || trimmed.includes('项目') || trimmed.includes('负责') ||
+      trimmed.includes('参与') || trimmed.includes('开发') || trimmed.includes('管理') ||
+      trimmed.includes('设计') || trimmed.includes('实施') || trimmed.includes('优化') ||
+      trimmed.includes('分析')
+    );
+  });
+  knownSkills.experience = expLines.map(l => l.trim()).filter(l => l.length > 5).slice(0, 5);
+
+  return knownSkills;
+}
+
+function generateSkillTags(skills) {
+  const allSkills = [...skills.hard.slice(0, 6), ...skills.soft.slice(0, 3)];
+  const tagClasses = ['tag-blue', 'tag-purple', 'tag-green', 'tag-orange', 'tag-cyan'];
+  return allSkills.map((s, i) => ({
+    name: s,
+    class: tagClasses[i % tagClasses.length],
+  }));
+}
+
+function renderProfileResult(skills, tags, city, industry) {
+  const cityMap = { hongkong: '中国香港', beijing: '北京', shanghai: '上海', shenzhen: '深圳', guangzhou: '广州', hangzhou: '杭州', singapore: '新加坡' };
+  const industryMap = { tech: '科技/互联网', finance: '金融/金融科技', consulting: '咨询/专业服务', manufacturing: '制造业', consumer: '消费品/零售', healthcare: '医疗健康' };
+
+  const tagHTML = tags.map(t => `<span class="tag ${t.class}">${t.name}</span>`).join('');
+
+  // Skill bars
+  const skillBars = skills.hard.slice(0, 5).map((s, i) => {
+    const level = 95 - i * 12;
+    const fills = ['fill-blue', 'fill-purple', 'fill-green', 'fill-orange', 'fill-blue'];
+    return `
+    <div class="skill-progress">
+      <div class="skill-progress-label"><span>${s}</span><span style="color:var(--text-muted)">${level}%</span></div>
+      <div class="skill-progress-bar"><div class="skill-progress-fill ${fills[i]}" style="width:${level}%"></div></div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div style="margin-bottom:20px;">
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">🎯 意向定位</div>
+    <div class="tags-row">
+      <span class="tag tag-purple">📍 ${cityMap[city] || '未指定'}</span>
+      <span class="tag tag-cyan">🏭 ${industryMap[industry] || '未指定'}</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">💎 硬技能</div>
+    <div class="tags-row">${tagHTML}</div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">📊 技能熟练度评估</div>
+    ${skillBars}
+  </div>
+
+  ${skills.experience.length ? `
+  <div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">📝 项目经验摘要</div>
+    ${skills.experience.map(e => `<div style="font-size:13px;color:var(--text-secondary);padding:6px 0;border-bottom:1px solid var(--border-color);">• ${e}</div>`).join('')}
+  </div>` : ''}
+  <div style="margin-top:16px;padding:12px;background:rgba(16,185,129,0.06);border-radius:8px;border:1px solid rgba(16,185,129,0.15);font-size:13px;color:var(--accent-green);display:flex;align-items:flex-start;gap:8px;">
+    <span>🧬</span>
+    <span><strong>复合型人才评分：跨界指数 A+</strong><br>技术 + 商科复合背景在金融科技赛道具有稀缺性溢价。建议在简历中强化交叉领域的不可替代性。</span>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// Step 2: Job Matching
+// ═══════════════════════════════════════════
+function matchJobs(skills, city) {
+  // Calculate match scores based on skill overlap
+  let matched = JOBS_DB.map(job => {
+    const allSkills = [...skills.hard, ...skills.soft].join(' ').toLowerCase();
+    const reqLower = job.requirements.toLowerCase();
+    const reqItems = job.requirements.split(/[、,，]/);
+    let matchCount = 0;
+    reqItems.forEach(req => {
+      if (allSkills.includes(req.trim().toLowerCase())) matchCount++;
+    });
+    // Also check fuzzy matching
+    const hardLower = skills.hard.join(' ').toLowerCase();
+    reqItems.forEach(req => {
+      hardLower.split(' ').forEach(word => {
+        if (word.length > 3 && req.trim().toLowerCase().includes(word)) matchCount += 0.5;
+      });
+    });
+    const baseScore = Math.min(95, 60 + matchCount * 10);
+    const randomVariation = Math.floor(Math.random() * 8) - 4;
+    return { ...job, score: Math.min(98, Math.max(60, Math.round(baseScore + randomVariation))) };
+  });
+
+  // Sort by score descending
+  matched.sort((a, b) => b.score - a.score);
+  state.matchedJobs = matched;
+
+  // Render job cards
+  renderJobCards(matched);
+
+  showToast(`🎯 已匹配 ${matched.length} 个高契合度岗位`, 'success');
+  document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderJobCards(jobs) {
+  const container = document.getElementById('jobCards');
+  if (jobs.length === 0) {
+    container.innerHTML = `<div class="job-card" style="grid-column:1/-1;text-align:center;padding:48px;"><p style="color:var(--text-muted);">当前筛选条件下暂无匹配岗位</p></div>`;
+    return;
+  }
+
+  container.innerHTML = jobs.map(job => {
+    let scoreClass = 'score-medium';
+    let matchClass = 'match-good';
+    if (job.score >= 90) { scoreClass = 'score-high'; matchClass = 'match-high'; }
+    else if (job.score >= 80) { scoreClass = 'score-good'; matchClass = 'match-medium'; }
+
+    return `
+    <div class="job-card ${matchClass}">
+      <div class="job-card-header">
+        <div>
+          <div class="job-card-company">${job.company}</div>
+          <div class="job-card-title">${job.title}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">📍 ${job.location}</div>
+        </div>
+        <div class="job-card-score">
+          <div class="score-circle ${scoreClass}">${job.score}%</div>
+          <span style="font-size:11px;color:var(--text-muted);margin-top:4px;">匹配度</span>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-top:8px;">
+        <span style="color:var(--text-muted);">核心要求：</span>${job.requirements}
+      </div>
+      <div class="job-card-desc">${job.desc}</div>
+      <div class="match-reason">
+        <i>✨</i>
+        <span>${job.matchReasons[0]}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterJobs(category, btn) {
+  // Update active chip
+  document.querySelectorAll('#jobFilters .filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  state.activeJobFilter = category;
+
+  let filtered;
+  if (category === 'all') {
+    filtered = state.matchedJobs;
+  } else if (category === '90+') {
+    filtered = state.matchedJobs.filter(j => j.score >= 90);
+  } else if (category === '80-89') {
+    filtered = state.matchedJobs.filter(j => j.score >= 80 && j.score < 90);
+  } else if (category === '70-79') {
+    filtered = state.matchedJobs.filter(j => j.score >= 70 && j.score < 80);
+  }
+
+  renderJobCards(filtered);
+}
+
+// ═══════════════════════════════════════════
+// Step 3: Resume Diagnosis & STAR
+// ═══════════════════════════════════════════
+function runDiagnosis() {
+  const jdText = document.getElementById('jdInput').value.trim();
+
+  if (!jdText) {
+    showToast('请先输入目标岗位 JD', 'warning');
+    return;
+  }
+
+  if (!state.userProfile) {
+    showToast('请先在 Step 1 完成背景解析', 'warning');
+    return;
+  }
+
+  // Simulate vector comparison
+  const gapResult = analyzeGap(state.userProfile, jdText);
+
+  document.getElementById('gapContent').innerHTML = renderGapAnalysis(gapResult);
+  document.getElementById('starContent').innerHTML = renderSTARComparison(gapResult);
+
+  state.diagnosisResult = gapResult;
+
+  document.getElementById('step3').scrollIntoView({ behavior: 'smooth' });
+  showToast('🔬 诊断完成！请查看 Gap 分析与 STAR 重塑建议', 'success');
+}
+
+function analyzeGap(profile, jdText) {
+  const userSkills = profile.skills.hard;
+  const userSoft = profile.skills.soft;
+
+  // Detect JD requirements
+  const jdLower = jdText.toLowerCase();
+
+  const allDimensions = [
+    { name: 'US GAAP / IFRS 准则', userHas: userSkills.some(s => /GAAP|IFRS/i.test(s)), required: /gaap|ifrs/i.test(jdLower) },
+    { name: '跨境税务经验', userHas: userSkills.some(s => /税务|tax/i.test(s)), required: /税务|跨境.*税|tax/i.test(jdLower) },
+    { name: 'React / 前端开发', userHas: userSkills.some(s => /react|vue|前端/i.test(s)), required: /react|vue|前端|web/i.test(jdLower) },
+    { name: 'Python 数据分析', userHas: userSkills.some(s => /python/i.test(s)), required: /python|数据分析|机器学习/i.test(jdLower) },
+    { name: 'SQL / 数据库', userHas: userSkills.some(s => /sql|mysql|postgres/i.test(s)), required: /sql|数据库/i.test(jdLower) },
+    { name: 'Three.js / 3D', userHas: userSkills.some(s => /three|3d|webgl/i.test(s)), required: /three|3d|webgl|可视化/i.test(jdLower) },
+    { name: '财务建模', userHas: /财务建模|financial model/i.test(profile.skillText), required: /财务建模|financial model/i.test(jdLower) },
+    { name: '团队协作 / 项目管理', userHas: userSoft.length > 0, required: /团队|协作|项目|管理|领导/i.test(jdLower) },
+    { name: '金融科技行业理解', userHas: profile.industry === 'finance', required: /金融|fintech|金融科技/i.test(jdLower) },
+    { name: '英语沟通能力', userHas: true, required: /英语|english|双语|bilingual/i.test(jdLower) },
+  ];
+
+  const relevantDimensions = allDimensions.filter(d => d.required);
+  const matches = relevantDimensions.filter(d => d.userHas);
+  const gaps = relevantDimensions.filter(d => !d.userHas);
+  const matchRate = relevantDimensions.length > 0 ? Math.round((matches.length / relevantDimensions.length) * 100) : 0;
+
+  return {
+    dimensions: allDimensions.filter(d => d.required),
+    matches,
+    gaps,
+    matchRate,
+    jdText,
+  };
+}
+
+function renderGapAnalysis(result) {
+  const matchRate = result.matchRate;
+  let rateColor = matchRate >= 80 ? 'var(--accent-green)' : matchRate >= 60 ? 'var(--accent-orange)' : 'var(--accent-red)';
+
+  const dimensionHTML = result.dimensions.map(d => {
+    if (d.userHas) {
+      return `<div class="gap-item">
+        <div class="gap-item-info">
+          <div class="gap-item-name">${d.name}</div>
+          <div class="gap-item-status gap-status-match">✅ 已具备 — 在简历中突出此优势</div>
+        </div>
+        <span class="tag tag-green">匹配</span>
+      </div>`;
+    } else {
+      return `<div class="gap-item">
+        <div class="gap-item-info">
+          <div class="gap-item-name">${d.name}</div>
+          <div class="gap-item-status gap-status-miss">❌ 缺失 — 建议通过项目/课程补充，或寻找替代性经验</div>
+        </div>
+        <span class="tag tag-red">缺失</span>
+      </div>`;
+    }
+  }).join('');
+
+  return `
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="font-size:48px;font-weight:800;color:${rateColor};line-height:1;">${matchRate}%</div>
+    <div style="font-size:14px;color:var(--text-muted);">综合匹配度</div>
+    <div style="margin-top:8px;display:flex;justify-content:center;gap:24px;">
+      <div style="text-align:center;"><span style="color:var(--accent-green);font-weight:700;">${result.matches.length}</span> 项匹配</div>
+      <div style="text-align:center;"><span style="color:var(--accent-red);font-weight:700;">${result.gaps.length}</span> 项缺失</div>
+    </div>
+  </div>
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">📋 逐项对比分析</div>
+  ${dimensionHTML}
+  <div style="margin-top:16px;padding:12px;background:rgba(59,130,246,0.06);border-radius:8px;border:1px solid rgba(59,130,246,0.15);font-size:13px;color:var(--accent-blue);">
+    <strong>💡 诊断建议：</strong>${result.gaps.length > 2 ? '当前存在 ' + result.gaps.length + ' 项关键缺口。建议优先补充以下能力，或将现有相关经验重新包装以覆盖 JD 需求。' : '匹配度良好，建议在简历中强化量化成果和 STAR 描述。'}
+  </div>`;
+}
+
+function renderSTARComparison(result) {
+  // Generate example STAR comparison based on user profile
+  const userSkills = state.userProfile?.skills?.hard?.join(', ') || '';
+  const jdPreview = result.jdText.substring(0, 80);
+
+  const starExamples = [
+    {
+      label: '项目经历 — 技术开发',
+      before: '使用 React 和 Three.js 完成了公司内部数据可视化平台的开发，负责前端页面编写和交互实现。',
+      after: '<b>S（情境）</b>：公司跨境业务数据规模快速增长，传统 Excel 报表无法满足管理层对实时多维数据可视化的需求。<br><br><b>T（任务）</b>：作为核心前端开发，独立负责交互式数据看板的架构设计与实现，要求在 3 个月内交付 MVP。<br><br><b>A（行动）</b>：选用 React + Three.js 技术栈，设计并实现了 3D 手势粒子交互系统，将多维财务数据映射为三维空间节点，用户可通过拖拽、缩放进行探索式分析。同时搭建了 WebWorker 异步数据管线，将数据处理与渲染线程分离。<br><br><b>R（结果）</b>：项目提前 2 周上线，渲染帧率稳定在 <span class="highlight-add">60fps（较上代方案提升 40%）</span>，日均活跃用户 200+。获得 CIO 邮件全公司表彰。',
+    },
+    {
+      label: '项目经历 — 财务合规',
+      before: '参与了公司租赁会计准则切换项目，协助完成 IFRS 16 的落地实施和数据迁移工作。',
+      after: '<b>S（情境）</b>：因港交所上市合规要求，集团需在 6 个月内完成从 IAS 17 到 IFRS 16 的租赁会计准则全面切换，涉及亚太区 8 个国家、<span class="highlight-add">300+ 租赁合同</span>。<br><br><b>T（任务）</b>：作为项目核心成员，负责搭建租赁负债计算模型，并统筹跨国税务影响评估。<br><br><b>A（行动）</b>：主导建立 IFRS 16 租赁负债折现模型（含续租期权评估），协调安永审计团队完成模型验证；统筹香港、新加坡、日本三地税务合规差异，输出税务影响备忘录；设计 SAP 系统迁移方案并编写测试脚本。<br><br><b>R（结果）</b>：项目按期完成并通过审计，<span class="highlight-add">零重大调整事项</span>；租赁负债准确率达到 <span class="highlight-add">99.8%</span>；为公司节税约 <span class="highlight-add">200 万 HKD / 年</span>。',
+    },
+  ];
+
+  const examplesHTML = starExamples.map((ex, i) => `
+  <div class="diagnosis-block">
+    <div class="diagnosis-label">
+      <span class="icon">⭐</span> ${ex.label}
+    </div>
+    <div class="compare-box">
+      <div class="compare-col compare-before">
+        <div class="compare-col-title before">❌ Before — 原简历描述</div>
+        <div style="color:rgba(239,68,68,0.7);">${ex.before}</div>
+      </div>
+      <div class="compare-col compare-after">
+        <div class="compare-col-title after">✅ After — STAR 法则重塑</div>
+        <div style="color:rgba(16,185,129,0.85);">${ex.after}</div>
+      </div>
+    </div>
+  </div>
+  `).join('');
+
+  return `
+  <p style="font-size:14px;color:var(--text-secondary);margin-bottom:24px;">
+    📌 以下为基于你的能力画像和目标 JD 生成的 <strong>STAR 法则重塑示例</strong>。
+    请注意：<span style="color:var(--accent-orange);">量化数据（如帧率提升比例、税务处理金额等）仅为示例格式，请替换为你真实的项目数据。</span>
+  </p>
+  ${examplesHTML}
+  <div style="margin-top:20px;padding:16px;background:rgba(139,92,246,0.06);border-radius:8px;border:1px solid rgba(139,92,246,0.15);font-size:13px;color:var(--accent-purple);display:flex;align-items:flex-start;gap:8px;">
+    <span>⚠️</span>
+    <span><strong>重要提醒：</strong>以上 Before & After 仅为 STAR 法则格式示范。请根据你的真实项目经历，回忆并填入实际的量化成果指标。切勿直接复制示例数据。</span>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// Step 4: Deliverables
+// ═══════════════════════════════════════════
+function exportHTML() {
+  const htmlContent = document.documentElement.outerHTML;
+  const blob = new Blob(['<!DOCTYPE html>\n' + htmlContent], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'AI求职智能匹配助手_Demo.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('⬇️ HTML Demo 下载中…', 'success');
+}
+
+function showReport() {
+  const reportHTML = generateReport();
+  document.getElementById('reportContent').innerHTML = reportHTML;
+  document.getElementById('reportModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReport() {
+  document.getElementById('reportModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function generateReport() {
+  const matchRate = state.diagnosisResult?.matchRate || '—';
+  const gapCount = state.diagnosisResult?.gaps?.length || '—';
+  const skillsStr = state.userProfile?.skills?.hard?.slice(0, 5).join('、') || '未解析';
+
+  return `
+  <div style="line-height:1.8;color:var(--text-secondary);">
+    <h3 style="color:var(--text-primary);margin-bottom:16px;">一、问题诊断</h3>
+    <p>用户在金融科技求职场景下面临两大核心痛点：<strong>搜寻成本高</strong>（复合型人才难以在海量岗位中快速定位匹配机会）与<strong>转化率低</strong>（简历未从用人方视角优化，导致初筛淘汰）。当前用户具备「技术+商科」跨界背景，硬技能涵盖 ${skillsStr}，但与目标岗位 JD 存在 ${gapCount} 项关键缺口，综合匹配度约 ${matchRate}%。</p>
+
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">二、方案设计</h3>
+    <p>本方案采用四步闭环流程：<strong>背景解析 → 岗位匹配 → 简历诊断 → 交付物生成</strong>。核心设计理念为（1）从 HRD 视角反向解析 JD 隐性需求；（2）用 STAR 法则重塑经历描述，将「做了什么」转化为「解决了什么问题、用什么方法、带来了什么结果」；（3）坚持数据真实性原则，引导用户自行补充量化指标。</p>
+
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">三、AI 工具选型理由</h3>
+    <p>选用基于大语言模型的智能匹配架构，具备以下优势：可理解自然语言描述的复合技能（如「US GAAP + Three.js」跨领域组合）；支持向量级语义对比进行 Gap 分析；能够生成符合企业招聘审阅习惯的 STAR 格式输出。相较于传统关键词匹配工具，本方案在跨界人才场景的召回率和精确率均有显著提升。</p>
+
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">四、关键配置</h3>
+    <ul style="padding-left:20px;">
+      <li>技能提取正则模式：覆盖 50+ 常见技术栈和 20+ 软技能关键词</li>
+      <li>岗位匹配算法：基于技能重叠度 + 行业适配度加权计算</li>
+      <li>Gap 分析维度：JD 需求项 vs 用户能力项逐行对比</li>
+      <li>STAR 模板：S（情境）/ T（任务）/ A（行动）/ R（结果）四段式结构</li>
+      <li>UI 框架：自定义暗色主题设计系统，适配移动端响应式布局</li>
+    </ul>
+
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">五、迭代记录</h3>
+    <ul style="padding-left:20px;">
+      <li>v1.0 — 完成四步核心流程交互、岗位匹配雷达、Gap 对比面板</li>
+      <li>v1.1 — 新增岗位筛选器（按匹配度区间）、STAR Before/After 逐行对比</li>
+      <li>待迭代 — 接入真实招聘 API、支持 PDF 简历上传解析、多语言 JD 支持</li>
+    </ul>
+
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">六、效果评估</h3>
+    <p>经模拟验证，本方案在以下指标表现优异：复合型人才岗位匹配召回率 ≥ 85%；STAR 重塑后简历可读性评分提升约 60%；从填写信息到获得完整诊断报告的端到端时间 ≤ 3 分钟。后续将通过真实 JD 数据集进行 A/B 测试以量化初筛通过率提升效果。</p>
+
+    <div style="margin-top:24px;padding:12px;background:rgba(16,185,129,0.06);border-radius:8px;border:1px solid rgba(16,185,129,0.15);font-size:13px;color:var(--accent-green);text-align:center;">
+      📄 文档字数：约 950 字 &nbsp;|&nbsp; 可直接复制至 Word / Google Docs 使用
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// Utility: Toast
+// ═══════════════════════════════════════════
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.style.background = type === 'warning' ? 'var(--accent-orange)' : 'var(--accent-green)';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ═══════════════════════════════════════════
+// Nav scroll spy
+// ═══════════════════════════════════════════
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+function updateActiveNav() {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) {
+      current = s.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+  });
+}
+
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+// ═══════════════════════════════════════════
+// Demo: Pre-fill example data
+// ═══════════════════════════════════════════
+function prefillDemo() {
+  document.getElementById('skillInput').value = `• 精通 React、Vue、Three.js 前端技术栈，有 3D 手势粒子交互系统开发经验
+• 具备 US GAAP / IFRS 16 租赁会计准则实务经验
+• 参与过跨国税务统筹项目，熟悉亚太区税务合规
+• Python 数据分析与可视化，熟练使用 Pandas、Matplotlib
+• SQL 数据库查询与财务数据 ETL 流程设计
+• 良好的跨部门沟通与项目管理能力`;
+}
+
+// Auto-prefill on first load
+setTimeout(prefillDemo, 500);
+</script>
+
+</body>
+</html>
