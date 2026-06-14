@@ -1,0 +1,17 @@
+{
+  "name": "job-match-ai",
+  "version": "1.0.0",
+  "description": "AI 求职智能匹配与简历优化助手",
+  "private": true,
+  "dependencies": {
+    "docx": "^9.7.1"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
