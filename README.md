@@ -2,6 +2,12 @@
 
 > 部署于 CloudBase 静态托管 | EnvId: `wyhworld118-d3gm742wg27cd8686`
 
+## 🔗 仓库
+
+| 平台 | 地址 |
+|------|------|
+| **GitHub** | [https://github.com/wangyihanworld-ux/Wyhworld](https://github.com/wangyihanworld-ux/Wyhworld) |
+
 ## 🚀 访问地址
 
 | 页面 | URL |
