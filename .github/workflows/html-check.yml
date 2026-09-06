@@ -1,0 +1,35 @@
+name: Static HTML check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-html:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check required HTML metadata
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const walk = directory => fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+            const target = path.join(directory, entry.name);
+            return entry.isDirectory() && !['.git', 'node_modules'].includes(entry.name) ? walk(target) : entry.isFile() && target.endsWith('.html') ? [target] : [];
+          });
+          const files = walk('.');
+          if (!files.length) throw new Error('No HTML files found.');
+          const requirements = [/<!doctype html/i, /<meta\s+charset=/i, /<meta\s+name=["']viewport["']/i, /<title>[^<]+<\/title>/i];
+          const failures = files.filter(file => !requirements.every(rule => rule.test(fs.readFileSync(file, 'utf8'))));
+          if (failures.length) throw new Error(`Missing required metadata: ${failures.join(', ')}`);
+          console.log(`Checked ${files.length} HTML file(s).`);
+          NODE

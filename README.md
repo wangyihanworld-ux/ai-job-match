@@ -1,42 +1,42 @@
 # AI 求职智能匹配与简历优化助手
 
-> 部署于 CloudBase 静态托管 | EnvId: `wyhworld118-d3gm742wg27cd8686`
+面向求职场景的前端交互原型：根据用户填写的能力描述和岗位 JD，演示能力标签提取、岗位匹配、能力缺口诊断与 STAR 表达优化。
 
-## 🔗 仓库
+> 本项目是静态 Demo，所有分析逻辑在浏览器本地以规则模拟完成，**不调用大模型或外部 AI API**。页面中的匹配度、岗位信息和量化示例仅用于展示交互与表达方法，不构成求职、招聘或职业建议。
 
-| 平台 | 地址 |
-|------|------|
-| **GitHub** | [https://github.com/wangyihanworld-ux/Wyhworld](https://github.com/wangyihanworld-ux/Wyhworld) |
+## 在线体验
 
-## 🚀 访问地址
+[打开 Demo](https://wyhworld118-d3gm742wg27cd8686-1443397936.tcloudbaseapp.com/)
 
-| 页面 | URL |
-|------|-----|
-| **主 Demo** | [https://wyhworld118-d3gm742wg27cd8686-1443397936.tcloudbaseapp.com/](https://wyhworld118-d3gm742wg27cd8686-1443397936.tcloudbaseapp.com/?v=20260615) |
-| 方案说明文档 (DOCX) | [https://wyhworld118-d3gm742wg27cd8686-1443397936.tcloudbaseapp.com/方案说明文档.docx](https://wyhworld118-d3gm742wg27cd8686-1443397936.tcloudbaseapp.com/方案说明文档.docx) |
+## 功能
 
-## 📁 项目文件
+- 从能力描述中提取硬技能、软技能和经历要点
+- 基于意向城市与技能标签筛选演示岗位
+- 根据岗位 JD 做规则化能力缺口诊断
+- 提供 STAR 结构的简历表达对照示例
+- 导出当前页面内容为 HTML 文件
 
-| 文件 | 说明 |
-|------|------|
-| `index.html` | 完整的 AI 求职智能匹配交互 Demo（单文件，包含 CSS/JS） |
-| `方案说明文档.md` | Markdown 格式方案说明文档（源码） |
-| `方案说明文档.docx` | Word 格式专业方案说明文档（DOCX，可下载） |
+## 本地运行
 
-## ☁️ CloudBase 资源
+这是一个单页静态原型，无需构建步骤：直接用浏览器打开 `index.html` 即可。
 
-| 资源 | 详情 |
-|------|------|
-| 环境 ID | `wyhworld118-d3gm742wg27cd8686` |
-| 区域 | `ap-shanghai` |
-| 静态托管域名 | `wyhworld118-d3gm742wg27cd8686-1443397936.tcloudbaseapp.com` |
-| 套餐 | 体验版 (baas_trial) |
+`package.json` 目前仅保留用于生成方案文档时的 `docx` 依赖；页面运行本身不依赖 Node.js。若后续要将项目产品化，建议补充真实 API、服务端数据保护、输入校验与自动化测试。
 
-## 🔧 控制台入口
+## 项目结构
 
-- [CloudBase 控制台](https://tcb.cloud.tencent.com/dev?envId=wyhworld118-d3gm742wg27cd8686#/overview)
-- [静态托管管理](https://tcb.cloud.tencent.com/dev?envId=wyhworld118-d3gm742wg27cd8686#/static-hosting)
+```text
+.
+├── index.html         # 完整交互 Demo（HTML、CSS、JavaScript）
+├── 方案说明文档.md     # 产品/方案说明源码
+├── 方案说明文档.docx   # 可下载的文档版本
+├── package.json        # 文档生成相关依赖
+└── .github/workflows/  # 静态页面基础检查
+```
 
----
+## 数据与隐私
 
-*最后部署时间：2026-06-15*
+用户填写的能力描述和 JD 仅在当前浏览器页面内处理；本静态 Demo 不会将它们提交到服务器。请勿在演示页面输入身份证号、联系方式、薪资明细等敏感个人信息。
+
+## 开源许可
+
+暂未添加许可证。若希望他人可合法复用，请补充 `MIT License` 或其他适合的许可证。
