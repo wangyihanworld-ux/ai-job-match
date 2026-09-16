@@ -1,5 +1,7 @@
 # AI 求职智能匹配与简历优化助手
 
+[![tests](https://github.com/wangyihanworld-ux/ai-job-match/actions/workflows/html-check.yml/badge.svg)](https://github.com/wangyihanworld-ux/ai-job-match/actions/workflows/html-check.yml)
+
 面向求职场景的前端交互原型：根据用户填写的能力描述和岗位 JD，演示能力标签提取、岗位匹配、能力缺口诊断与 STAR 表达优化。
 
 > 本项目是静态 Demo，所有分析逻辑在浏览器本地以规则模拟完成，**不调用大模型或外部 AI API**。页面中的匹配度、岗位信息和量化示例仅用于展示交互与表达方法，不构成求职、招聘或职业建议。
@@ -14,9 +16,9 @@
 
 ## 本地运行
 
-这是一个单页静态原型，无需构建步骤：直接用浏览器打开 `index.html` 即可。
+这是一个单页静态原型，无需构建步骤：直接用浏览器打开 `index.html` 即可。运行 `npm test` 可执行输入转义与页面静态安全测试。
 
-`package.json` 目前仅保留用于生成方案文档时的 `docx` 依赖；页面运行本身不依赖 Node.js。若后续要将项目产品化，建议补充真实 API、服务端数据保护、输入校验与自动化测试。
+`package.json` 保留用于生成方案文档时的 `docx` 依赖和自动化测试入口；页面运行本身不依赖 Node.js。用户输入在插入结果区域前会进行 HTML 转义。
 
 ## 项目结构
 
