@@ -1026,6 +1026,7 @@
 <!-- ════ Toast Container ════ -->
 <div id="toastContainer"></div>
 
+<script src="security.js"></script>
 <script>
 // ═══════════════════════════════════════════
 // State Management
@@ -1190,10 +1191,11 @@ function generateSkillTags(skills) {
 }
 
 function renderProfileResult(skills, tags, city, industry) {
+  const { escapeHTML } = window.AppSecurity;
   const cityMap = { hongkong: '中国香港', beijing: '北京', shanghai: '上海', shenzhen: '深圳', guangzhou: '广州', hangzhou: '杭州', singapore: '新加坡' };
   const industryMap = { tech: '科技/互联网', finance: '金融/金融科技', consulting: '咨询/专业服务', manufacturing: '制造业', consumer: '消费品/零售', healthcare: '医疗健康' };
 
-  const tagHTML = tags.map(t => `<span class="tag ${t.class}">${t.name}</span>`).join('');
+  const tagHTML = tags.map(t => `<span class="tag ${escapeHTML(t.class)}">${escapeHTML(t.name)}</span>`).join('');
 
   // Skill bars
   const skillBars = skills.hard.slice(0, 5).map((s, i) => {
@@ -1201,7 +1203,7 @@ function renderProfileResult(skills, tags, city, industry) {
     const fills = ['fill-blue', 'fill-purple', 'fill-green', 'fill-orange', 'fill-blue'];
     return `
     <div class="skill-progress">
-      <div class="skill-progress-label"><span>${s}</span><span style="color:var(--text-muted)">${level}%</span></div>
+      <div class="skill-progress-label"><span>${escapeHTML(s)}</span><span style="color:var(--text-muted)">${level}%</span></div>
       <div class="skill-progress-bar"><div class="skill-progress-fill ${fills[i]}" style="width:${level}%"></div></div>
     </div>`;
   }).join('');
@@ -1228,7 +1230,7 @@ function renderProfileResult(skills, tags, city, industry) {
   ${skills.experience.length ? `
   <div>
     <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">📝 项目经验摘要</div>
-    ${skills.experience.map(e => `<div style="font-size:13px;color:var(--text-secondary);padding:6px 0;border-bottom:1px solid var(--border-color);">• ${e}</div>`).join('')}
+    ${skills.experience.map(e => `<div style="font-size:13px;color:var(--text-secondary);padding:6px 0;border-bottom:1px solid var(--border-color);">• ${escapeHTML(e)}</div>`).join('')}
   </div>` : ''}
   <div style="margin-top:16px;padding:12px;background:rgba(16,185,129,0.06);border-radius:8px;border:1px solid rgba(16,185,129,0.15);font-size:13px;color:var(--accent-green);display:flex;align-items:flex-start;gap:8px;">
     <span>🧬</span>
@@ -1522,8 +1524,8 @@ function generateReport() {
     <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">二、方案设计</h3>
     <p>本方案采用四步闭环流程：<strong>背景解析 → 岗位匹配 → 简历诊断 → 交付物生成</strong>。核心设计理念为（1）从 HRD 视角反向解析 JD 隐性需求；（2）用 STAR 法则重塑经历描述，将「做了什么」转化为「解决了什么问题、用什么方法、带来了什么结果」；（3）坚持数据真实性原则，引导用户自行补充量化指标。</p>
 
-    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">三、AI 工具选型理由</h3>
-    <p>选用基于大语言模型的智能匹配架构，具备以下优势：可理解自然语言描述的复合技能（如「US GAAP + Three.js」跨领域组合）；支持向量级语义对比进行 Gap 分析；能够生成符合企业招聘审阅习惯的 STAR 格式输出。相较于传统关键词匹配工具，本方案在跨界人才场景的召回率和精确率均有显著提升。</p>
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">三、原型技术边界</h3>
+    <p>当前版本是浏览器本地运行的规则原型，使用关键词识别和规则加权展示匹配流程，不调用大语言模型、向量数据库或招聘 API。它适合验证交互与信息结构，不应把演示分数当作真实招聘概率。若产品化，应先建立经脱敏标注的 JD 测试集，再评估准确率、召回率与偏差。</p>
 
     <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">四、关键配置</h3>
     <ul style="padding-left:20px;">
@@ -1541,8 +1543,8 @@ function generateReport() {
       <li>待迭代 — 接入真实招聘 API、支持 PDF 简历上传解析、多语言 JD 支持</li>
     </ul>
 
-    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">六、效果评估</h3>
-    <p>经模拟验证，本方案在以下指标表现优异：复合型人才岗位匹配召回率 ≥ 85%；STAR 重塑后简历可读性评分提升约 60%；从填写信息到获得完整诊断报告的端到端时间 ≤ 3 分钟。后续将通过真实 JD 数据集进行 A/B 测试以量化初筛通过率提升效果。</p>
+    <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">六、效果评估计划</h3>
+    <p>当前版本尚未在真实招聘结果上验证，因此不声明召回率、简历通过率或效果提升。后续可使用经授权且脱敏的 JD 数据集测试规则识别的准确率与召回率，并通过用户任务测试记录完成时间、错误率和可用性反馈。</p>
 
     <div style="margin-top:24px;padding:12px;background:rgba(16,185,129,0.06);border-radius:8px;border:1px solid rgba(16,185,129,0.15);font-size:13px;color:var(--accent-green);text-align:center;">
       📄 文档字数：约 950 字 &nbsp;|&nbsp; 可直接复制至 Word / Google Docs 使用
