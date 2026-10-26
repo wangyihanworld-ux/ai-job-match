@@ -3,3 +3,15 @@ node_modules/
 Thumbs.db
 *.log
 .codebuddy/
+
+# Local/private material must not be committed
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/private/
+/application-materials*/
+/review-*/
+/privacy-audit-*/
+/resume*/
