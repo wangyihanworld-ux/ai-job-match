@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI 求职智能匹配与简历优化助手</title>
   <meta name="theme-color" content="#0f172a">
-  <link rel="preconnect" href="https://unpkg.com">
-  <link rel="stylesheet" href="https://unpkg.com/tdesign-vue-next/dist/tdesign.min.css">
   <style>
     :root {
       --bg-primary: #0f172a;
@@ -899,9 +897,9 @@
 
   <div class="filter-row" id="jobFilters">
     <button class="filter-chip active" onclick="filterJobs('all', this)">全部岗位</button>
-    <button class="filter-chip" onclick="filterJobs('90+', this)">匹配度 ≥ 90%</button>
-    <button class="filter-chip" onclick="filterJobs('80-89', this)">匹配度 80-89%</button>
-    <button class="filter-chip" onclick="filterJobs('70-79', this)">匹配度 70-79%</button>
+    <button class="filter-chip" onclick="filterJobs('90+', this)">覆盖率 ≥ 90%</button>
+    <button class="filter-chip" onclick="filterJobs('80-89', this)">覆盖率 80-89%</button>
+    <button class="filter-chip" onclick="filterJobs('70-79', this)">覆盖率 70-79%</button>
   </div>
 
   <div class="grid-3" id="jobCards">
@@ -1026,7 +1024,40 @@
 <!-- ════ Toast Container ════ -->
 <div id="toastContainer"></div>
 
-<script src="security.js"></script>
+<script data-local-dependencies>
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.AppSecurity = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  function escapeHTML(value) {
+    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return String(value).replace(/[&<>"']/g, character => entities[character]);
+  }
+  return { escapeHTML };
+});
+
+(function(root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.JobScoring = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function() {
+  const cityNames = { hongkong: '香港', shenzhen: '深圳', shanghai: '上海', beijing: '北京', singapore: '新加坡', guangzhou: '广州' };
+  function scoreJobs(jobs, skills, city) {
+    const known = new Set([...(skills.hard || []), ...(skills.soft || [])].map(s => s.trim().toLowerCase()));
+    const location = cityNames[city];
+    return jobs.filter(job => !location || job.location.includes(location)).map(job => {
+      const requirements = job.requirements.split(/[、,，]/).map(s => s.trim()).filter(Boolean);
+      const matched = requirements.filter(req => req.split('/').some(part => known.has(part.trim().toLowerCase())));
+      const score = requirements.length ? Math.round(100 * matched.length / requirements.length) : 0;
+      return { ...job, score, matchReasons: matched.length ? matched.map(req => '已识别关键词：' + req) : ['尚未识别到要求中的关键词，请人工核对'] };
+    }).sort((a, b) => b.score - a.score || a.id - b.id);
+  }
+  return { scoreJobs };
+});
+
+
+</script>
 <script>
 // ═══════════════════════════════════════════
 // State Management
@@ -1151,7 +1182,7 @@ function extractSkills(text) {
   };
 
   patterns.hard.forEach(skill => {
-    const regex = new RegExp(skill.replace(/\./g, '\\.'), 'gi');
+    const regex = new RegExp('(?<![A-Za-z0-9])(?:' + skill + ')(?![A-Za-z0-9])', 'gi');
     if (regex.test(text)) {
       const match = text.match(regex)[0];
       if (!knownSkills.hard.includes(match)) {
@@ -1203,8 +1234,8 @@ function renderProfileResult(skills, tags, city, industry) {
     const fills = ['fill-blue', 'fill-purple', 'fill-green', 'fill-orange', 'fill-blue'];
     return `
     <div class="skill-progress">
-      <div class="skill-progress-label"><span>${escapeHTML(s)}</span><span style="color:var(--text-muted)">${level}%</span></div>
-      <div class="skill-progress-bar"><div class="skill-progress-fill ${fills[i]}" style="width:${level}%"></div></div>
+      <div class="skill-progress-label"><span>${escapeHTML(s)}</span><span style="color:var(--text-muted)">关键词命中</span></div>
+      <div class="skill-progress-bar"><div class="skill-progress-fill ${fills[i]}" style="width:100%"></div></div>
     </div>`;
   }).join('');
 
@@ -1223,7 +1254,7 @@ function renderProfileResult(skills, tags, city, industry) {
   </div>
 
   <div style="margin-bottom:20px;">
-    <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">📊 技能熟练度评估</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">📊 已识别关键词（不评估熟练度）</div>
     ${skillBars}
   </div>
 
@@ -1234,7 +1265,7 @@ function renderProfileResult(skills, tags, city, industry) {
   </div>` : ''}
   <div style="margin-top:16px;padding:12px;background:rgba(16,185,129,0.06);border-radius:8px;border:1px solid rgba(16,185,129,0.15);font-size:13px;color:var(--accent-green);display:flex;align-items:flex-start;gap:8px;">
     <span>🧬</span>
-    <span><strong>复合型人才评分：跨界指数 A+</strong><br>技术 + 商科复合背景在金融科技赛道具有稀缺性溢价。建议在简历中强化交叉领域的不可替代性。</span>
+    <span><strong>关键词整理结果：需人工核对</strong><br>关键词识别不代表技能熟练度、岗位胜任度或录用概率。请结合真实证据核对每项要求。</span>
   </div>`;
 }
 
@@ -1242,35 +1273,13 @@ function renderProfileResult(skills, tags, city, industry) {
 // Step 2: Job Matching
 // ═══════════════════════════════════════════
 function matchJobs(skills, city) {
-  // Calculate match scores based on skill overlap
-  let matched = JOBS_DB.map(job => {
-    const allSkills = [...skills.hard, ...skills.soft].join(' ').toLowerCase();
-    const reqLower = job.requirements.toLowerCase();
-    const reqItems = job.requirements.split(/[、,，]/);
-    let matchCount = 0;
-    reqItems.forEach(req => {
-      if (allSkills.includes(req.trim().toLowerCase())) matchCount++;
-    });
-    // Also check fuzzy matching
-    const hardLower = skills.hard.join(' ').toLowerCase();
-    reqItems.forEach(req => {
-      hardLower.split(' ').forEach(word => {
-        if (word.length > 3 && req.trim().toLowerCase().includes(word)) matchCount += 0.5;
-      });
-    });
-    const baseScore = Math.min(95, 60 + matchCount * 10);
-    const randomVariation = Math.floor(Math.random() * 8) - 4;
-    return { ...job, score: Math.min(98, Math.max(60, Math.round(baseScore + randomVariation))) };
-  });
-
-  // Sort by score descending
-  matched.sort((a, b) => b.score - a.score);
+  const matched = window.JobScoring.scoreJobs(JOBS_DB, skills, city);
   state.matchedJobs = matched;
 
   // Render job cards
   renderJobCards(matched);
 
-  showToast(`🎯 已匹配 ${matched.length} 个高契合度岗位`, 'success');
+  showToast(`🎯 已匹配 ${matched.length} 个城市筛选后的演示岗位`, 'success');
   document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -1421,7 +1430,7 @@ function renderGapAnalysis(result) {
   return `
   <div style="text-align:center;margin-bottom:24px;">
     <div style="font-size:48px;font-weight:800;color:${rateColor};line-height:1;">${matchRate}%</div>
-    <div style="font-size:14px;color:var(--text-muted);">综合匹配度</div>
+    <div style="font-size:14px;color:var(--text-muted);">关键词覆盖率</div>
     <div style="margin-top:8px;display:flex;justify-content:center;gap:24px;">
       <div style="text-align:center;"><span style="color:var(--accent-green);font-weight:700;">${result.matches.length}</span> 项匹配</div>
       <div style="text-align:center;"><span style="color:var(--accent-red);font-weight:700;">${result.gaps.length}</span> 项缺失</div>
@@ -1496,7 +1505,7 @@ function exportHTML() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('⬇️ HTML Demo 下载中…', 'success');
+  showToast('⬇️ HTML 已导出；文件可能包含页面输入，请勿公开私人信息', 'success');
 }
 
 function showReport() {
@@ -1514,12 +1523,12 @@ function closeReport() {
 function generateReport() {
   const matchRate = state.diagnosisResult?.matchRate || '—';
   const gapCount = state.diagnosisResult?.gaps?.length || '—';
-  const skillsStr = state.userProfile?.skills?.hard?.slice(0, 5).join('、') || '未解析';
+  const skillsStr = window.AppSecurity.escapeHTML(state.userProfile?.skills?.hard?.slice(0, 5).join('、') || '未解析');
 
   return `
   <div style="line-height:1.8;color:var(--text-secondary);">
     <h3 style="color:var(--text-primary);margin-bottom:16px;">一、问题诊断</h3>
-    <p>用户在金融科技求职场景下面临两大核心痛点：<strong>搜寻成本高</strong>（复合型人才难以在海量岗位中快速定位匹配机会）与<strong>转化率低</strong>（简历未从用人方视角优化，导致初筛淘汰）。当前用户具备「技术+商科」跨界背景，硬技能涵盖 ${skillsStr}，但与目标岗位 JD 存在 ${gapCount} 项关键缺口，综合匹配度约 ${matchRate}%。</p>
+    <p>用户在金融科技求职场景下面临两大核心痛点：<strong>搜寻成本高</strong>（复合型人才难以在海量岗位中快速定位匹配机会）与<strong>转化率低</strong>（简历未从用人方视角优化，导致初筛淘汰）。当前输入中识别的技能关键词涵盖 ${skillsStr}，但与目标岗位 JD 存在 ${gapCount} 项关键缺口，关键词覆盖率约 ${matchRate}%。</p>
 
     <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">二、方案设计</h3>
     <p>本方案采用四步闭环流程：<strong>背景解析 → 岗位匹配 → 简历诊断 → 交付物生成</strong>。核心设计理念为（1）从 HRD 视角反向解析 JD 隐性需求；（2）用 STAR 法则重塑经历描述，将「做了什么」转化为「解决了什么问题、用什么方法、带来了什么结果」；（3）坚持数据真实性原则，引导用户自行补充量化指标。</p>
@@ -1529,8 +1538,8 @@ function generateReport() {
 
     <h3 style="color:var(--text-primary);margin-top:24px;margin-bottom:16px;">四、关键配置</h3>
     <ul style="padding-left:20px;">
-      <li>技能提取正则模式：覆盖 50+ 常见技术栈和 20+ 软技能关键词</li>
-      <li>岗位匹配算法：基于技能重叠度 + 行业适配度加权计算</li>
+      <li>技能提取：使用内置关键词规则，无法证明熟练度或经验真实性</li>
+      <li>岗位匹配：城市筛选后按要求关键词覆盖率排序；不使用随机分数</li>
       <li>Gap 分析维度：JD 需求项 vs 用户能力项逐行对比</li>
       <li>STAR 模板：S（情境）/ T（任务）/ A（行动）/ R（结果）四段式结构</li>
       <li>UI 框架：自定义暗色主题设计系统，适配移动端响应式布局</li>

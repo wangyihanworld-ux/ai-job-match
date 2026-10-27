@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-27",
+  "tests": 8,
+  "subtests": 0,
+  "test_framework": "node:test",
+  "test_exit_code": 0,
+  "demo_exit_codes": {},
+  "source_sha256_lf_normalized": {
+    "index.html": "3a4dc0e017515346e72db76edbf8f845747da33b7e4430ffcbdd25ad4be9c237",
+    "scoring.js": "fef433b1e1e20ff5c8717ebae9f195ce5c6bce9701e195fea27d29b838e02f65",
+    "security.js": "d97f794d9ca510d3d7d669e7113177a16c8bf5f2d35661a3514a4b04a861c5f5",
+    "tests/scoring.test.js": "33921beeff23b5266f8ad066176277c7ab261f59e68ac4321fcc69a5922ac06d",
+    "tests/security.test.js": "4f271bbaf7c921204b6cdeedfcda9d3d249c24e3745bad3b7ba3e5ef470070bc"
+  },
+  "limits": "AI-assisted local verification; not evidence of deployment, user acceptance or business outcomes."
+}
